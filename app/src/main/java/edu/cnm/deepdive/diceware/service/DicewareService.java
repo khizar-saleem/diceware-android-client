@@ -2,6 +2,7 @@ package edu.cnm.deepdive.diceware.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.cnm.deepdive.diceware.BuildConfig;
 import edu.cnm.deepdive.diceware.model.Passphrase;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -53,6 +54,7 @@ public interface DicewareService {
       Retrofit retrofit = new Retrofit.Builder()
           .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
           .addConverterFactory(GsonConverterFactory.create(gson))
+          .baseUrl(BuildConfig.BASE_URL)
           .build();
       INSTANCE = retrofit.create(DicewareService.class);
     }
