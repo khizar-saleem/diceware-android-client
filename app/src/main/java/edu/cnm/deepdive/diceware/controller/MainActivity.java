@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.diceware.controller;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import edu.cnm.deepdive.diceware.R;
-import edu.cnm.deepdive.diceware.model.Passphrase;
 import edu.cnm.deepdive.diceware.service.DicewareService;
 import edu.cnm.deepdive.diceware.service.GoogleSignInService;
 import edu.cnm.deepdive.diceware.view.PassphraseAdapter;
@@ -37,15 +37,31 @@ public class MainActivity extends AppCompatActivity {
     });
     RecyclerView passphraseList = findViewById(R.id.keyword_list);
     GoogleSignInService.getInstance().getAccount().observe(this, (account) -> {
-      String token = getString(R.string.oauth_header, account.getIdToken());
-      Log.d("Oauth2.0 token", token);
-      DicewareService.getInstance().getAll(token)
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe((passphrases) -> {
-            PassphraseAdapter adapter = new PassphraseAdapter(this, passphrases);
-            passphraseList.setAdapter(adapter);
-          });
+      if (account != null) {
+        String token = getString(R.string.oauth_header, account.getIdToken());
+        Log.d("Oauth2.0 token", token); // FIXME Remove before shipping.
+        DicewareService.getInstance().getAll(token)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe((passphrases) -> {
+              PassphraseAdapter adapter = new PassphraseAdapter(this, passphrases,
+                  (view, position, passphrase) -> {
+                    //TODO Add code to pop up editor.
+                    Log.d("Passphrase click", passphrase.getKey());
+                  },
+                  (menu, position, passphrase) -> {
+                    Log.d("Passphrase context", passphrase.getKey());
+                    getMenuInflater().inflate(R.menu.passphrase_context, menu);
+                    menu.findItem(R.id.delete_passphrase).setOnMenuItemClickListener(
+                        (item) -> {
+                          Log.d("Delete selected", passphrase.getKey());
+                          // TODO Send request to server to delete passphrase; refresh view.
+                          return true;
+                        });
+                  });
+              passphraseList.setAdapter(adapter);
+            });
+      }
     });
   }
 
@@ -61,13 +77,21 @@ public class MainActivity extends AppCompatActivity {
     // Handle action bar item clicks here. The action bar will
     // automatically handle clicks on the Home/Up button, so long
     // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
+    boolean handled = true;
+    switch (item.getItemId()) {
+      case R.id.action_settings:
+        break;
+      case R.id.sign_out:
+        GoogleSignInService.getInstance().signOut()
+            .addOnCompleteListener((task) -> {
+              Intent intent = new Intent(this, LoginActivity.class);
+              intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+              startActivity(intent);
+            });
+        break;
+      default:
+        handled = super.onOptionsItemSelected(item);
     }
-
-    return super.onOptionsItemSelected(item);
+    return handled;
   }
 }

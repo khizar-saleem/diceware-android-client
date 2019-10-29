@@ -17,4 +17,11 @@
 
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+  <style name="PassphraseItem" parent="AppTheme">
+    <item name="android:textSize">@dimen/passphrase_size</item>
+    <item name="android:padding">@dimen/passphrase_padding</item>
+    <item name="android:textColor">@color/darkText</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
 </resources>
