@@ -10,4 +10,8 @@
   <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="passphrase_key">Passphrase key</string>
+  <string name="passphrase_words">Passphrase words</string>
+  <string name="passphrase_details">Passphrase Details</string>
+  <string name="cancel">Cancel</string>
+  <string name="ok">Ok</string>
 </resources>

@@ -6,6 +6,8 @@ import java.util.List;
 
 public class Passphrase implements Serializable {
 
+  private static final long serialVersionUID = -6693587121163744899L;
+
   @Expose
   private long id;
 
